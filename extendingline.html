@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: #1e1e1e;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="lineCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('lineCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let centerX = canvas.width / 2;
+    let centerY = canvas.height / 2;
+
+    let length = 0;
+    const maxLength = (canvas.width * 0.75) / 2; // 75% of width
+    const speed = 30; // extending speed
+    let fullyExtended = false;
+    let blinkCount = 0;
+
+    function drawLine(visible = true) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (visible) {
+        ctx.beginPath();
+        ctx.moveTo(centerX - length, centerY);
+        ctx.lineTo(centerX + length, centerY);
+        ctx.strokeStyle = '#e1dfdb';
+        ctx.lineWidth = 2; // Skinnier line
+        ctx.stroke();
+      }
+    }
+
+    function animate() {
+      drawLine();
+      if (!fullyExtended) {
+        length += speed;
+        if (length >= maxLength) {
+          length = maxLength;
+          fullyExtended = true;
+          startBlinking();
+        } else {
+          requestAnimationFrame(animate);
+        }
+      }
+    }
+
+    function startBlinking() {
+      let visible = false;
+      const blinkInterval = setInterval(() => {
+        drawLine(visible);
+        visible = !visible;
+        blinkCount++;
+        if (blinkCount >= 6) {
+          clearInterval(blinkInterval);
+          drawLine(true);
+        }
+      }, 150);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      centerX = canvas.width / 2;
+      centerY = canvas.height / 2;
+      length = fullyExtended ? (canvas.width * 0.75) / 2 : length;
+      drawLine(fullyExtended || blinkCount >= 6);
+    });
+  </script>
+</body>
+</html>
